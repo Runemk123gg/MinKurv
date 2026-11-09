@@ -119,6 +119,7 @@ select{padding:12px;border-radius:12px;border:1px solid #dbe4d7;background:white
       <button class="btn" onclick="if(confirm('Vil du slette din gemte indkøbsliste?')){cart={};saveAndRender()}">Ryd indkøbsliste</button>
     </div>
   </section>
+
   <div class="foot">MinKurv 2.0 · Lokal demo · Priser er eksempler</div>
 </main>
 
@@ -129,64 +130,46 @@ select{padding:12px;border-radius:12px;border:1px solid #dbe4d7;background:white
 </nav>
 
 <script>
-const stores = ['Netto', 'REMA 1000', 'Lidl', 'føtex', 'Bilka', '365discount', 'SuperBrugsen', 'Kvickly', 'MENY', 'SPAR'];
-const products = [
-  {id:'milk', aliases:['mel','mælk','maelk','milk'], name:'Letmælk 1 L', brand:'Basis', emoji:'🥛', base:13.5},
-  {id:'eggs', name:'Æg 10 stk.', brand:'Basis', emoji:'🥚', base:29},
-  {id:'bread', name:'Rugbrød 500 g', brand:'Basis', emoji:'🍞', base:18},
-  {id:'banana', name:'Bananer 1 kg', brand:'Basis', emoji:'🍌', base:21},
-  {id:'butter', name:'Smør 200 g', brand:'Basis', emoji:'🧈', base:24},
-  {id:'coffee', name:'Kaffe 400 g', brand:'Basis', emoji:'☕', base:54},
-  {id:'pasta', name:'Pasta 500 g', brand:'Basis', emoji:'🍝', base:15},
-  {id:'rice', name:'Ris 1 kg', brand:'Basis', emoji:'🍚', base:26},
-  {id:'chicken', name:'Kyllingebryst 400 g', brand:'Basis', emoji:'🍗', base:48},
-  {id:'cheese', name:'Ost 400 g', brand:'Basis', emoji:'🧀', base:39},
-  {id:'tomato', name:'Tomater 500 g', brand:'Basis', emoji:'🍅', base:22},
-  {id:'oats', name:'Havregryn 1 kg', brand:'Basis', emoji:'🥣', base:19}
+const stores=['Netto','REMA 1000','Lidl','føtex','Bilka','365discount','SuperBrugsen','Kvickly','MENY','SPAR'];
+const products=[
+  {id:'milk',aliases:['mel','mælk','maelk','milk'],name:'Letmælk 1 L',brand:'Basis',emoji:'🥛',base:13.5},
+  {id:'eggs',name:'Æg 10 stk.',brand:'Basis',emoji:'🥚',base:29},
+  {id:'bread',name:'Rugbrød 500 g',brand:'Basis',emoji:'🍞',base:18},
+  {id:'banana',name:'Bananer 1 kg',brand:'Basis',emoji:'🍌',base:21},
+  {id:'butter',name:'Smør 200 g',brand:'Basis',emoji:'🧈',base:24},
+  {id:'coffee',name:'Kaffe 400 g',brand:'Basis',emoji:'☕',base:54},
+  {id:'pasta',name:'Pasta 500 g',brand:'Basis',emoji:'🍝',base:15},
+  {id:'rice',name:'Ris 1 kg',brand:'Basis',emoji:'🍚',base:26},
+  {id:'chicken',name:'Kyllingebryst 400 g',brand:'Basis',emoji:'🍗',base:48},
+  {id:'cheese',name:'Ost 400 g',brand:'Basis',emoji:'🧀',base:39},
+  {id:'tomato',name:'Tomater 500 g',brand:'Basis',emoji:'🍅',base:22},
+  {id:'oats',name:'Havregryn 1 kg',brand:'Basis',emoji:'🥣',base:19}
 ];
 
-const kr = n => n.toLocaleString('da-DK', {style:'currency', currency:'DKK'});
-const safeRead = (key, fallback) => {
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-  catch { return fallback; }
-};
-let cart = safeRead('minkurv-cart', {});
-let mode = safeRead('minkurv-mode', 'single');
-const hash = s => Array.from(s).reduce((h, c) => ((h * 31 + c.charCodeAt(0)) >>> 0), 7);
+const kr=n=>n.toLocaleString('da-DK',{style:'currency',currency:'DKK'});
+const safeRead=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
+let cart=safeRead('minkurv-cart',{}),mode=safeRead('minkurv-mode','single');
+const hash=s=>Array.from(s).reduce((h,c)=>((h*31+c.charCodeAt(0))>>>0),7);
 
-function quote(p, s, alt) {
-  const seed = hash(p.id + s);
-  const factor = 0.88 + (seed % 25) / 100;
-  const normal = Math.round(p.base * factor * 2) / 2;
-  const offer = seed % 4 === 0 ? Math.round(normal * .79 * 2) / 2 : null;
-  const alternative = alt ? Math.round(normal * (.86 + (seed % 8) / 100) * 2) / 2 : null;
-  const opts = [{price:normal, label:'Normalpris', name:p.name}];
-  if (offer !== null) opts.push({price:offer, label:'Tilbud', name:p.name});
-  if (alternative !== null) opts.push({price:alternative, label:'Alternativt mærke', name:p.name + ' (alternativ)'});
-  return opts.sort((a, b) => a.price - b.price)[0];
+function quote(p,s,alt) {
+  let seed=hash(p.id+s), factor=0.88+(seed%25)/100;
+  let normal=Math.round(p.base*factor*2)/2;
+  let offer=seed%4===0?Math.round(normal*.79*2)/2:null;
+  let alternative=alt?Math.round(normal*(.86+(seed%8)/100)*2)/2:null;
+  let opts=[{price:normal,label:'Normalpris',name:p.name}];
+  if(offer!==null)opts.push({price:offer,label:'Tilbud',name:p.name});
+  if(alternative!==null)opts.push({price:alternative,label:'Alternativt mærke',name:p.name+' (alternativ)'});
+  return opts.sort((a,b)=>a.price-b.price)[0];
 }
 
-function add(id) {
-  cart[id] = (cart[id] || 0) + 1;
-  saveAndRender();
-}
-
-function adjust(id, n) {
-  cart[id] = (cart[id] || 0) + n;
-  if (cart[id] <= 0) delete cart[id];
-  saveAndRender();
-}
-
-function saveAndRender() {
-  localStorage.setItem('minkurv-cart', JSON.stringify(cart));
-  localStorage.setItem('minkurv-mode', JSON.stringify(mode));
+function add(id){cart[id]=(cart[id]||0)+1;saveAndRender()}
+function adjust(id,n){cart[id]=(cart[id]||0)+n;if(cart[id]<=0)delete cart[id];saveAndRender()}
+function saveAndRender(){
+  localStorage.setItem('minkurv-cart',JSON.stringify(cart));
+  localStorage.setItem('minkurv-mode',JSON.stringify(mode));
   render();
 }
-
-function setMode(m) {
-  mode = m;
-  saveAndRender();
-}
+function setMode(m){mode=m;saveAndRender()}
 
 function normalizeSearch(value) {
   return value.trim().toLocaleLowerCase('da').replaceAll('æ', 'ae')
@@ -203,112 +186,72 @@ function findProducts(value) {
 }
 
 function renderSearch() {
-  const matches = findProducts(document.getElementById('search').value);
-  document.getElementById('results').innerHTML = matches.map(p => `
-    <div class="item">
-      <div><strong>${p.emoji} ${p.name}</strong><div class="small">Eksempelvare</div></div>
-      <button class="btn" onclick="add('${p.id}')">+ Tilføj</button>
-    </div>
-  `).join('') || '<p class="muted">Ingen varer fundet i demo-kataloget.</p>';
+  let matches=findProducts(document.getElementById('search').value);
+  document.getElementById('results').innerHTML=matches.map(p=>
+    `<div class="item"><div><strong>${p.emoji} ${p.name}</strong><div class="small">Eksempelvare</div></div><button class="btn" onclick="add('${p.id}')">+ Tilføj</button></div>`
+  ).join('')||'<p class="muted">Ingen varer fundet i demo-kataloget.</p>';
 }
 
 function render() {
   renderSearch();
-  const selected = products.filter(p => cart[p.id] > 0);
-  document.getElementById('count').textContent =
-    `(${selected.reduce((sum, p) => sum + cart[p.id], 0)} varer)`;
-  document.getElementById('basket').innerHTML = selected.length ? selected.map(p => `
-    <div class="item">
-      <div><strong>${p.emoji} ${p.name}</strong></div>
-      <div class="qty">
-        <button onclick="adjust('${p.id}',-1)">−</button>
-        ${cart[p.id]}
-        <button onclick="adjust('${p.id}',1)">+</button>
-      </div>
-    </div>
-  `).join('') : '<p class="muted">Din kurv er tom. Søg efter en vare ovenfor.</p>';
+  let selected=products.filter(p=>cart[p.id]>0);
+  document.getElementById('count').textContent=`(${selected.reduce((a,p)=>a+cart[p.id],0)} varer)`;
+  document.getElementById('basket').innerHTML=selected.length?selected.map(p=>
+    `<div class="item"><div><strong>${p.emoji} ${p.name}</strong></div><div class="qty"><button onclick="adjust('${p.id}',-1)">−</button>${cart[p.id]}<button onclick="adjust('${p.id}',1)">+</button></div></div>`
+  ).join(''):'<p class="muted">Din kurv er tom. Søg efter en vare ovenfor.</p>';
 
-  for (const m of ['single', 'multi']) {
-    document.getElementById(m).classList.toggle('active', m === mode);
-  }
-
-  const area = document.getElementById('comparison');
-  if (!selected.length) {
-    area.innerHTML = '<p class="muted">Tilføj varer for at se din pris.</p>';
+  for(let m of ['single','multi'])document.getElementById(m).classList.toggle('active',m===mode);
+  const area=document.getElementById('comparison');
+  if(!selected.length){
+    area.innerHTML='<p class="muted">Tilføj varer for at se din pris.</p>';
     return;
   }
 
-  const alt = document.getElementById('alternatives').checked;
-  const totals = stores.map(store => ({
-    store,
-    total: selected.reduce((sum, p) => sum + quote(p, store, alt).price * cart[p.id], 0)
-  })).sort((a, b) => a.total - b.total);
-  const multi = selected.map(p => {
-    const ranked = stores.map(store => ({store, ...quote(p, store, alt)}))
-      .sort((a, b) => a.price - b.price);
-    return {...ranked[0], product:p, qty:cart[p.id]};
+  let alt=document.getElementById('alternatives').checked;
+  let totals=stores.map(s=>({
+    store:s,
+    total:selected.reduce((a,p)=>a+quote(p,s,alt).price*cart[p.id],0)
+  })).sort((a,b)=>a.total-b.total);
+  let multi=selected.map(p=>{
+    let ranked=stores.map(s=>({store:s,...quote(p,s,alt)})).sort((a,b)=>a.price-b.price);
+    return {...ranked[0],product:p,qty:cart[p.id]};
   });
-  const multiTotal = multi.reduce((sum, row) => sum + row.price * row.qty, 0);
-  const top = totals[0].total;
-  const worst = totals[totals.length - 1].total;
+  let multiTotal=multi.reduce((a,r)=>a+r.price*r.qty,0);
+  let top=totals[0].total;
+  let worst=totals[totals.length-1].total;
 
-  if (mode === 'single') {
-    area.innerHTML = `
-      <div class="total">${kr(top)}</div>
-      <p class="muted">Billigste butik: <b>${totals[0].store}</b> · Forskel til dyreste: ${kr(worst - top)}</p>
-    ` + totals.map((x, i) => `
-      <div class="store ${i === 0 ? 'best' : ''}">
-        <div class="storeline"><b>${i === 0 ? '🏆 ' : ''}${x.store}</b><b>${kr(x.total)}</b></div>
-      </div>
-    `).join('') + '<p class="small">Kun demo-katalogets varer. Alle 10 butikker har eksempelpriser.</p>';
-  } else {
-    const count = new Set(multi.map(x => x.store)).size;
-    area.innerHTML = `
-      <div class="total">${kr(multiTotal)}</div>
-      <p class="muted">Fordelt på ${count} butikker · Spar ${kr(top - multiTotal)} sammenlignet med billigste enkeltbutik</p>
-    ` + multi.map(x => `
-      <div class="store">
-        <div class="storeline">
-          <div>
-            <b>${x.product.emoji} ${x.product.name}</b>
-            <div class="small">${x.store} · ${x.label} · ${x.qty} stk.</div>
-          </div>
-          <b>${kr(x.price * x.qty)}</b>
-        </div>
-      </div>
-    `).join('');
+  if(mode==='single'){
+    area.innerHTML=`<div class="total">${kr(top)}</div><p class="muted">Billigste butik: <b>${totals[0].store}</b> · Forskel til dyreste: ${kr(worst-top)}</p>`+
+      totals.map((x,i)=>`<div class="store ${i===0?'best':''}"><div class="storeline"><b>${i===0?'🏆 ':''}${x.store}</b><b>${kr(x.total)}</b></div></div>`).join('')+
+      '<p class="small">Kun demo-katalogets varer. Alle 10 butikker har eksempelpriser.</p>';
+  }else{
+    let count=new Set(multi.map(x=>x.store)).size;
+    area.innerHTML=`<div class="total">${kr(multiTotal)}</div><p class="muted">Fordelt på ${count} butikker · Spar ${kr(top-multiTotal)} sammenlignet med billigste enkeltbutik</p>`+
+      multi.map(x=>`<div class="store"><div class="storeline"><div><b>${x.product.emoji} ${x.product.name}</b><div class="small">${x.store} · ${x.label} · ${x.qty} stk.</div></div><b>${kr(x.price*x.qty)}</b></div></div>`).join('');
   }
 }
 
 function tab(t) {
-  for (const id of ['home', 'prices', 'profile']) {
-    document.getElementById(id).classList.toggle('hide', id !== t);
-    document.getElementById('nav' + id).classList.toggle('active', id === t);
+  for(let id of ['home','prices','profile']){
+    document.getElementById(id).classList.toggle('hide',id!==t);
+    document.getElementById('nav'+id).classList.toggle('active',id===t);
   }
-  if (t === 'prices') renderHistory();
-  window.scrollTo(0, 0);
+  if(t==='prices')renderHistory();
+  window.scrollTo(0,0);
 }
 
 function renderHistory() {
-  const p = products.find(x => x.id === document.getElementById('historySelect').value) || products[0];
-  const data = Array.from({length:8}, (_, i) =>
-    Math.round(p.base * (.78 + hash(p.id + 'week' + i) % 45 / 100) * 2) / 2
-  );
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  document.getElementById('history').innerHTML = `
-    <p class="muted">Illustrativ prisudvikling over 8 uger. Ikke faktiske historiske priser.</p>
-    <div class="chart">${data.map(v =>
-      `<div class="bar" title="${kr(v)}" style="height:${Math.max(12, Math.round(v / max * 100))}%"></div>`
-    ).join('')}</div>
-    <div class="storeline small"><span>8 uger siden</span><span>Nu</span></div>
-    <p><b>Laveste demopris:</b> ${kr(min)}<br><b>Højeste demopris:</b> ${kr(max)}</p>
-  `;
+  let p=products.find(x=>x.id===document.getElementById('historySelect').value)||products[0];
+  let data=Array.from({length:8},(_,i)=>Math.round(p.base*(.78+hash(p.id+'week'+i)%45/100)*2)/2);
+  let min=Math.min(...data),max=Math.max(...data);
+  document.getElementById('history').innerHTML=
+    `<p class="muted">Illustrativ prisudvikling over 8 uger. Ikke faktiske historiske priser.</p><div class="chart">${data.map(v=>`<div class="bar" title="${kr(v)}" style="height:${Math.max(12,Math.round(v/max*100))}%"></div>`).join('')}</div><div class="storeline small"><span>8 uger siden</span><span>Nu</span></div><p><b>Laveste demopris:</b> ${kr(min)}<br><b>Højeste demopris:</b> ${kr(max)}</p>`;
 }
 
-document.getElementById('historySelect').innerHTML = products.map(p =>
-  `<option value="${p.id}">${p.emoji} ${p.name}</option>`
-).join('');
-document.getElementById('search').
-
-Jeg kan ikke slå den op lige nu, men brug den fulde kode jeg sendte: erstat hele index.html med den, gem, og så test igen ved at skrive “mel” eller “mælk”. Hvis den stadig driller, så prøver vi igen senere eller du kan sende den opdaterede fil, så rydder jeg op i den. Vil du prøve at gemme og teste først?
+document.getElementById('historySelect').innerHTML=products.map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('');
+document.getElementById('search').addEventListener('input',renderSearch);
+render();
+renderHistory();
+</script>
+</body>
+</html>
