@@ -1,1 +1,132 @@
-<h1>velkommen til MinKurv</h1>
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#dfff81">
+<title>MinKurv 2.0</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#173b2a;background:#f5f7f1}
+*{box-sizing:border-box}
+body{margin:0}
+main{max-width:520px;margin:auto;padding:20px 17px 110px}
+.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.logo{font-size:27px;font-weight:900;letter-spacing:-1px}
+.sub{font-size:12px;color:#617567}
+.pill{border-radius:99px;padding:7px 11px;background:#e2faad;font-size:12px;font-weight:700}
+.hero{background:#dfff81;border-radius:25px;padding:23px;margin-bottom:17px}
+.hero h1{font-size:29px;line-height:1.08;margin:9px 0}
+.hero p{font-size:14px;margin:0;color:#42653b}
+.card{background:white;border-radius:22px;padding:17px;margin:13px 0;box-shadow:0 4px 20px #24442c0a}
+h2{font-size:18px;margin:0 0 13px}
+.search{width:100%;padding:15px;border-radius:15px;border:1px solid #dbe4d7;font:inherit;outline-color:#62ad68}
+.results{max-height:220px;overflow:auto}
+.item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eff2ed;gap:10px}
+.item:last-child{border:0}
+.small{font-size:12px;color:#78847b}
+.item strong{font-size:14px}
+.btn{border:0;border-radius:13px;background:#dfff81;color:#19432b;font-weight:800;padding:10px 14px;cursor:pointer}
+.btn.dark{background:#1b5236;color:white}
+.btn.light{background:#f0f4ed}
+.qty{display:flex;align-items:center;gap:9px}
+.qty button{border:0;background:#e8f3de;border-radius:9px;padding:7px 11px;font-weight:800}
+.toggle{display:grid;grid-template-columns:1fr 1fr;background:#eef3e9;padding:4px;border-radius:14px;gap:4px}
+.toggle button{border:0;background:transparent;border-radius:11px;padding:12px 5px;font-weight:700;color:#5a6e5c}
+.toggle button.active{background:#fff;color:#1a5134;box-shadow:0 2px 6px #00000010}
+.total{font-size:31px;font-weight:900;margin:8px 0}
+.store{padding:12px;background:#f5f8f2;border-radius:14px;margin:8px 0}
+.store.best{background:#e3f7c5}
+.storeline{display:flex;justify-content:space-between;align-items:center}
+.tag{display:inline-block;background:#ffdc90;color:#714b09;border-radius:8px;font-size:10px;padding:3px 6px;font-weight:800}
+.notice{background:#fff4d9;border-radius:14px;padding:11px;font-size:12px;color:#70562c;margin:12px 0}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #edf0e9;display:flex;justify-content:space-around;padding:11px 5px calc(12px + env(safe-area-inset-bottom))}
+.bottom button{border:0;background:none;font-size:12px;color:#64776a;font-weight:700}
+.bottom button.active{color:#176238}
+.hide{display:none}
+.chart{display:flex;align-items:end;height:130px;gap:7px;border-bottom:1px solid #d9e2d5;padding-top:15px}
+.bar{flex:1;background:#b9df89;border-radius:5px 5px 0 0;min-height:10px}
+.muted{color:#6c7c70;font-size:13px}
+select{padding:12px;border-radius:12px;border:1px solid #dbe4d7;background:white;width:100%;font:inherit}
+.foot{font-size:12px;color:#78847b;text-align:center;margin-top:15px}
+</style>
+</head>
+<body>
+<main>
+  <header class="head">
+    <div>
+      <div class="logo">🛒 MinKurv<span style="color:#79bd38">.</span></div>
+      <div class="sub">Mere i kurven. Mindre på kvitteringen.</div>
+    </div>
+    <span class="pill">DEMO 2.0</span>
+  </header>
+
+  <section id="home">
+    <div class="hero">
+      <span class="pill" style="background:white">💚 Din smarte indkøbsmakker</span>
+      <h1>Find din billigste indkøbskurv.</h1>
+      <p>Normalpriser + tilbudspriser. Du bestemmer, hvor du handler.</p>
+    </div>
+    <div class="card">
+      <h2>🔎 Find dine varer</h2>
+      <input id="search" class="search" placeholder="Søg fx mælk, æg, kaffe..." autocomplete="off">
+      <div id="results" class="results"></div>
+    </div>
+    <div class="card">
+      <h2>🧺 Min indkøbsliste <span id="count" class="small"></span></h2>
+      <div id="basket"></div>
+    </div>
+    <div class="card">
+      <h2>🏪 Sådan vil jeg handle</h2>
+      <div class="toggle">
+        <button id="single" class="active" onclick="setMode('single')">Én butik</button>
+        <button id="multi" onclick="setMode('multi')">Flere butikker</button>
+      </div>
+      <p class="muted">Vi sammenligner altid den laveste pris af normalpris og tilbudspris.</p>
+      <label class="muted">
+        <input id="alternatives" type="checkbox" checked onchange="saveAndRender()">
+        Tillad billigere alternative mærker
+      </label>
+      <div id="comparison"></div>
+    </div>
+    <div class="notice">⚠️ Alle viste priser og tilbud er opdigtede DEMO-data. Ikke aktuelle priser fra butikkerne. Transport indgår ikke.</div>
+  </section>
+
+  <section id="prices" class="hide">
+    <div class="hero">
+      <h1>📈 Prishistorik</h1>
+      <p>Se prisudviklingen for en vare – eksempeldata.</p>
+    </div>
+    <div class="card">
+      <h2>Vælg en vare</h2>
+      <select id="historySelect" onchange="renderHistory()"></select>
+      <div id="history"></div>
+    </div>
+  </section>
+
+  <section id="profile" class="hide">
+    <div class="hero">
+      <h1>👋 Din profil</h1>
+      <p>Vi gør MinKurv personlig.</p>
+    </div>
+    <div class="card">
+      <h2>Apple- og e-mail-login</h2>
+      <p class="muted">Rigtig konto og sikker login kommer i en senere version. Denne demo gemmer kun indkøbslisten lokalt på din enhed.</p>
+      <button class="btn light" disabled>Log ind med Apple (kommer snart)</button>
+    </div>
+    <div class="card">
+      <h2>Om MinKurv</h2>
+      <p class="muted">Gratis app med planlagte diskrete reklamer. Ingen reklamer i denne prototype.</p>
+      <button class="btn" onclick="if(confirm('Vil du slette din gemte indkøbsliste?')){cart={};saveAndRender()}">Ryd indkøbsliste</button>
+    </div>
+  </section>
+  <div class="foot">MinKurv 2.0 · Lokal demo · Priser er eksempler</div>
+</main>
+
+<nav class="bottom">
+  <button class="active" id="navhome" onclick="tab('home')">🏠<br>Hjem</button>
+  <button id="navprices" onclick="tab('prices')">📈<br>Prishistorik</button>
+  <button id="navprofile" onclick="tab('profile')">👤<br>Profil</button>
+</nav>
+
+<script>
+const stores = ['Netto', 'REMA 1000', 'Lidl', 'føtex', 'Bilka', '365discount', 'Super
