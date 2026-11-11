@@ -1,257 +1,210 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="da">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#dfff81">
-<title>MinKurv 2.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MinKurv – sammenlign din indkøbskurv</title>
 <style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#173b2a;background:#f5f7f1}
+:root{--bg:#f6f4ee;--card:#fff;--ink:#1d2a24;--mute:#66736c;--line:#e2ded2;--accent:#1f7a4d;--accent-ink:#fff;--soft:#e6f2ea;--danger:#b3372b}
+@media (prefers-color-scheme:dark){:root{--bg:#141a17;--card:#1d2621;--ink:#eaf1ec;--mute:#93a39a;--line:#2d3a33;--accent:#4cc38a;--accent-ink:#0c1812;--soft:#24372c;--danger:#ff8a7d}}
 *{box-sizing:border-box}
-body{margin:0}
-main{max-width:520px;margin:auto;padding:20px 17px 110px}
-.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.logo{font-size:27px;font-weight:900;letter-spacing:-1px}
-.sub{font-size:12px;color:#617567}
-.pill{border-radius:99px;padding:7px 11px;background:#e2faad;font-size:12px;font-weight:700}
-.hero{background:#dfff81;border-radius:25px;padding:23px;margin-bottom:17px}
-.hero h1{font-size:29px;line-height:1.08;margin:9px 0}
-.hero p{font-size:14px;margin:0;color:#42653b}
-.card{background:white;border-radius:22px;padding:17px;margin:13px 0;box-shadow:0 4px 20px #24442c0a}
-h2{font-size:18px;margin:0 0 13px}
-.search{width:100%;padding:15px;border-radius:15px;border:1px solid #dbe4d7;font:inherit;outline-color:#62ad68}
-.results{max-height:220px;overflow:auto}
-.item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eff2ed;gap:10px}
-.item:last-child{border:0}
-.small{font-size:12px;color:#78847b}
-.item strong{font-size:14px}
-.btn{border:0;border-radius:13px;background:#dfff81;color:#19432b;font-weight:800;padding:10px 14px;cursor:pointer}
-.btn.dark{background:#1b5236;color:white}
-.btn.light{background:#f0f4ed}
-.qty{display:flex;align-items:center;gap:9px}
-.qty button{border:0;background:#e8f3de;border-radius:9px;padding:7px 11px;font-weight:800}
-.toggle{display:grid;grid-template-columns:1fr 1fr;background:#eef3e9;padding:4px;border-radius:14px;gap:4px}
-.toggle button{border:0;background:transparent;border-radius:11px;padding:12px 5px;font-weight:700;color:#5a6e5c}
-.toggle button.active{background:#fff;color:#1a5134;box-shadow:0 2px 6px #00000010}
-.total{font-size:31px;font-weight:900;margin:8px 0}
-.store{padding:12px;background:#f5f8f2;border-radius:14px;margin:8px 0}
-.store.best{background:#e3f7c5}
-.storeline{display:flex;justify-content:space-between;align-items:center}
-.tag{display:inline-block;background:#ffdc90;color:#714b09;border-radius:8px;font-size:10px;padding:3px 6px;font-weight:800}
-.notice{background:#fff4d9;border-radius:14px;padding:11px;font-size:12px;color:#70562c;margin:12px 0}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #edf0e9;display:flex;justify-content:space-around;padding:11px 5px calc(12px + env(safe-area-inset-bottom))}
-.bottom button{border:0;background:none;font-size:12px;color:#64776a;font-weight:700}
-.bottom button.active{color:#176238}
-.hide{display:none}
-.chart{display:flex;align-items:end;height:130px;gap:7px;border-bottom:1px solid #d9e2d5;padding-top:15px}
-.bar{flex:1;background:#b9df89;border-radius:5px 5px 0 0;min-height:10px}
-.muted{color:#6c7c70;font-size:13px}
-select{padding:12px;border-radius:12px;border:1px solid #dbe4d7;background:white;width:100%;font:inherit}
-.foot{font-size:12px;color:#78847b;text-align:center;margin-top:15px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 60px}
+h1{margin:0;font-size:1.6rem;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+.sub{color:var(--mute);margin:2px 0 20px}
+.grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+@media (max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+h2{margin:0 0 10px;font-size:1.05rem}
+input,select,button{font:inherit;color:inherit}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.results{list-style:none;margin:10px 0 0;padding:0;max-height:340px;overflow:auto}
+.results li{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line)}
+.results .n{flex:1}
+.results small,.cat{color:var(--mute);font-size:.82rem}
+.empty{color:var(--mute);padding:10px 2px}
+details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 110px;gap:8px;margin:10px 0}
+label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:3px}
+.basket{list-style:none;margin:0;padding:0}
+.basket li{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.basket .n{flex:1;min-width:0}
+.basket .n b{font-weight:600;overflow-wrap:anywhere}
+.tag{font-size:.72rem;background:var(--soft);color:var(--accent);padding:1px 7px;border-radius:99px;margin-left:6px}
+.qty{display:flex;align-items:center;gap:4px}
+.qty button{width:34px;height:34px;padding:0}
+.qty span{min-width:26px;text-align:center;font-variant-numeric:tabular-nums}
+.del{color:var(--danger)}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:var(--mute)}
+.link{background:none;border:0;color:var(--danger);padding:4px}
+.scroll{overflow-x:auto}
+table.cmp{border-collapse:collapse;width:100%;min-width:660px;font-size:.9rem}
+.cmp th,.cmp td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left;white-space:normal;min-width:140px}
+.cmp input{width:80px;padding:6px 8px;text-align:right}
+.cmp .tot td{font-weight:600;vertical-align:top}
+.cmp td.best{background:var(--soft);color:var(--accent)}
+.cmp small{font-weight:400;color:var(--mute)}
+#verdict{margin:0 0 10px}
 </style>
 </head>
 <body>
-<main>
-  <header class="head">
-    <div>
-      <div class="logo">🛒 MinKurv<span style="color:#79bd38">.</span></div>
-      <div class="sub">Mere i kurven. Mindre på kvitteringen.</div>
-    </div>
-    <span class="pill">DEMO 2.0</span>
-  </header>
+<div class="wrap">
+  <h1>Min<span>Kurv</span></h1>
+  <p class="sub">Søg efter dagligvarer, byg din kurv og se, hvor den er billigst.</p>
 
-  <section id="home">
-    <div class="hero">
-      <span class="pill" style="background:white">💚 Din smarte indkøbsmakker</span>
-      <h1>Find din billigste indkøbskurv.</h1>
-      <p>Normalpriser + tilbudspriser. Du bestemmer, hvor du handler.</p>
-    </div>
-    <div class="card">
-      <h2>🔎 Find dine varer</h2>
-      <input id="search" class="search" placeholder="Søg fx mælk, æg, kaffe..." autocomplete="off" aria-label="Søg efter varer">
-      <div id="results" class="results" aria-live="polite"></div>
-    </div>
-    <div class="card">
-      <h2>🧺 Min indkøbsliste <span id="count" class="small"></span></h2>
-      <div id="basket"></div>
-    </div>
-    <div class="card">
-      <h2>🏪 Sådan vil jeg handle</h2>
-      <div class="toggle">
-        <button id="single" class="active" onclick="setMode('single')">Én butik</button>
-        <button id="multi" onclick="setMode('multi')">Flere butikker</button>
-      </div>
-      <p class="muted">Vi sammenligner altid den laveste pris af normalpris og tilbudspris.</p>
-      <label class="muted">
-        <input id="alternatives" type="checkbox" checked onchange="saveAndRender()">
-        Tillad billigere alternative mærker
-      </label>
-      <div id="comparison"></div>
-    </div>
-    <div class="notice">⚠️ Alle viste priser og tilbud er opdigtede DEMO-data. Ikke aktuelle priser fra butikkerne. Transport indgår ikke.</div>
+  <div class="grid">
+    <section class="card">
+      <h2>Find varer</h2>
+      <input id="q" type="search" placeholder="Søg fx mælk, rugbrød, hakket oksekød …" autocomplete="off" aria-label="Søg efter vare">
+      <ul class="results" id="results"></ul>
+
+      <details id="manual">
+        <summary>Mangler varen? Tilføj den selv</summary>
+        <div class="row">
+          <div><label for="mName">Varens navn</label><input id="mName" placeholder="fx Skyr med vanilje 1 kg"></div>
+          <div><label for="mQty">Antal</label><input id="mQty" type="number" min="1" value="1"></div>
+        </div>
+        <label for="mCat">Kategori (valgfri)</label>
+        <select id="mCat"></select>
+        <p style="margin:12px 0 0"><button class="primary" id="mAdd">Tilføj til kurv</button></p>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>Din kurv <span class="cat" id="count"></span></h2>
+      <ul class="basket" id="basket"></ul>
+      <div class="foot"><span id="sum"></span><button class="link" id="clear" hidden>Tøm kurven</button></div>
+    </section>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <h2>Sammenlign priser</h2>
+    <p class="sub" style="margin:0 0 10px">Skriv prisen pr. stk. (kr.) for hver vare i de butikker, du vil sammenligne. Priserne gemmes i din browser.</p>
+    <p id="verdict"></p>
+    <div class="scroll" id="cmp"></div>
   </section>
-
-  <section id="prices" class="hide">
-    <div class="hero">
-      <h1>📈 Prishistorik</h1>
-      <p>Se prisudviklingen for en vare – eksempeldata.</p>
-    </div>
-    <div class="card">
-      <h2>Vælg en vare</h2>
-      <select id="historySelect" onchange="renderHistory()"></select>
-      <div id="history"></div>
-    </div>
-  </section>
-
-  <section id="profile" class="hide">
-    <div class="hero">
-      <h1>👋 Din profil</h1>
-      <p>Vi gør MinKurv personlig.</p>
-    </div>
-    <div class="card">
-      <h2>Apple- og e-mail-login</h2>
-      <p class="muted">Rigtig konto og sikker login kommer i en senere version. Denne demo gemmer kun indkøbslisten lokalt på din enhed.</p>
-      <button class="btn light" disabled>Log ind med Apple (kommer snart)</button>
-    </div>
-    <div class="card">
-      <h2>Om MinKurv</h2>
-      <p class="muted">Gratis app med planlagte diskrete reklamer. Ingen reklamer i denne prototype.</p>
-      <button class="btn" onclick="if(confirm('Vil du slette din gemte indkøbsliste?')){cart={};saveAndRender()}">Ryd indkøbsliste</button>
-    </div>
-  </section>
-
-  <div class="foot">MinKurv 2.0 · Lokal demo · Priser er eksempler</div>
-</main>
-
-<nav class="bottom">
-  <button class="active" id="navhome" onclick="tab('home')">🏠<br>Hjem</button>
-  <button id="navprices" onclick="tab('prices')">📈<br>Prishistorik</button>
-  <button id="navprofile" onclick="tab('profile')">👤<br>Profil</button>
-</nav>
+</div>
 
 <script>
-const stores=['Netto','REMA 1000','Lidl','føtex','Bilka','365discount','SuperBrugsen','Kvickly','MENY','SPAR'];
-const products=[
-  {id:'milk',aliases:['mel','mælk','maelk','milk'],name:'Letmælk 1 L',brand:'Basis',emoji:'🥛',base:13.5},
-  {id:'eggs',name:'Æg 10 stk.',brand:'Basis',emoji:'🥚',base:29},
-  {id:'bread',name:'Rugbrød 500 g',brand:'Basis',emoji:'🍞',base:18},
-  {id:'banana',name:'Bananer 1 kg',brand:'Basis',emoji:'🍌',base:21},
-  {id:'butter',name:'Smør 200 g',brand:'Basis',emoji:'🧈',base:24},
-  {id:'coffee',name:'Kaffe 400 g',brand:'Basis',emoji:'☕',base:54},
-  {id:'pasta',name:'Pasta 500 g',brand:'Basis',emoji:'🍝',base:15},
-  {id:'rice',name:'Ris 1 kg',brand:'Basis',emoji:'🍚',base:26},
-  {id:'chicken',name:'Kyllingebryst 400 g',brand:'Basis',emoji:'🍗',base:48},
-  {id:'cheese',name:'Ost 400 g',brand:'Basis',emoji:'🧀',base:39},
-  {id:'tomato',name:'Tomater 500 g',brand:'Basis',emoji:'🍅',base:22},
-  {id:'oats',name:'Havregryn 1 kg',brand:'Basis',emoji:'🥣',base:19}
-];
+const CATS=["Mejeri & æg","Brød & bagværk","Frugt & grønt","Kød & fisk","Kolonial","Drikkevarer","Frost","Snacks & sødt","Husholdning","Andet"];
+const CATALOG={
+"Mejeri & æg":["Sødmælk 1 L","Letmælk 1 L","Skummetmælk 1 L","Minimælk 1 L","Kærnemælk 1 L","Piskefløde 250 ml","Madlavningsfløde 250 ml","Creme fraiche 18% 200 g","Smør 250 g","Letsaltet smør 250 g","Æg 10 stk.","Æg 12 stk.","Skyr naturel 1 kg","Yoghurt naturel 1 L","Revet ost 150 g","Cheddar 400 g","Danbo 45+ 400 g","Mozzarella 125 g","Feta 200 g","Hytteost 250 g","Flødeost 200 g","Remoulade 375 g"],
+"Brød & bagværk":["Rugbrød 1 stk.","Toastbrød 500 g","Formbrød","Hvedeboller 8 stk.","Rundstykker 6 stk.","Tortillas 8 stk.","Pitabrød 6 stk.","Knækbrød 250 g","Wienerbrød"],
+"Frugt & grønt":["Bananer 1 kg","Æbler 1 kg","Pærer 1 kg","Appelsiner 1 kg","Citron","Lime","Druer 500 g","Jordbær 400 g","Blåbær 125 g","Avocado","Agurk","Tomater 500 g","Cherrytomater 250 g","Peberfrugt","Gulerødder 1 kg","Kartofler 1 kg","Løg 1 kg","Hvidløg","Broccoli","Blomkål","Spinat 200 g","Icebergsalat","Squash","Champignon 250 g","Porre","Rødbeder","Hvidkål","Rødkål","Ingefær","Frisk basilikum"],
+"Kød & fisk":["Hakket oksekød 8-12% 500 g","Hakket svinekød 500 g","Hakket kylling 500 g","Kyllingebryst 900 g","Kyllingelår 1 kg","Medister 400 g","Bacon i skiver 150 g","Pølser 8 stk.","Leverpostej 400 g","Hamburgerryg","Kogt skinke 100 g","Laksefilet 400 g","Torskefilet 400 g","Rejer 250 g","Tun på dåse 185 g","Makrel i tomat 170 g","Frikadeller 500 g"],
+"Kolonial":["Spaghetti 500 g","Penne 500 g","Ris 1 kg","Basmatiris 1 kg","Havregryn 1 kg","Mysli 750 g","Cornflakes 500 g","Hvedemel 1 kg","Sukker 1 kg","Salt 1 kg","Peber","Rapsolie 1 L","Olivenolie 500 ml","Hakkede tomater 400 g","Tomatpuré 140 g","Flåede tomater 400 g","Kidneybønner 400 g","Kikærter 400 g","Majs 340 g","Linser 500 g","Kokosmælk 400 ml","Bouillon","Ketchup 500 g","Sennep","Mayonnaise","Marmelade 400 g","Nutella 400 g","Jordnøddesmør 340 g","Honning 350 g","Leverpostej på dåse","Pesto 190 g"],
+"Drikkevarer":["Appelsinjuice 1 L","Æblejuice 1 L","Danskvand 1,5 L","Cola 1,5 L","Cola Zero 1,5 L","Faxe Kondi 1,5 L","Kaffe formalet 400 g","Kaffekapsler","Te 20 breve","Øl 6 stk.","Rødvin 75 cl","Hvidvin 75 cl","Havredrik 1 L","Sojadrik 1 L"],
+"Frost":["Frosne ærter 1 kg","Frossen spinat 500 g","Frosne grøntsager 1 kg","Pizza","Pommes frites 750 g","Is 1 L","Frosne jordbær 500 g","Fiskefileter paneret","Frosne boller"],
+"Snacks & sødt":["Chips 170 g","Chokolade 200 g","Lakrids","Vingummi","Kiks","Popcorn","Nødder 200 g","Rosiner 200 g","Småkager"],
+"Husholdning":["Toiletpapir 8 ruller","Køkkenrulle 4 ruller","Opvasketabs","Opvaskemiddel","Vaskepulver","Skyllemiddel","Håndsæbe","Shampoo","Tandpasta","Affaldsposer","Bagepapir","Alufolie","Frysepose"]
+};
+const ITEMS=Object.entries(CATALOG).flatMap(([c,l])=>l.map(n=>({name:n,cat:c})));
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+const KEY="minkurv.kurv.v1";
+let basket=[];
+try{basket=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){basket=[]}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(basket))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-const kr=n=>n.toLocaleString('da-DK',{style:'currency',currency:'DKK'});
-const safeRead=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
-let cart=safeRead('minkurv-cart',{}),mode=safeRead('minkurv-mode','single');
-const hash=s=>Array.from(s).reduce((h,c)=>((h*31+c.charCodeAt(0))>>>0),7);
-
-function quote(p,s,alt) {
-  let seed=hash(p.id+s), factor=0.88+(seed%25)/100;
-  let normal=Math.round(p.base*factor*2)/2;
-  let offer=seed%4===0?Math.round(normal*.79*2)/2:null;
-  let alternative=alt?Math.round(normal*(.86+(seed%8)/100)*2)/2:null;
-  let opts=[{price:normal,label:'Normalpris',name:p.name}];
-  if(offer!==null)opts.push({price:offer,label:'Tilbud',name:p.name});
-  if(alternative!==null)opts.push({price:alternative,label:'Alternativt mærke',name:p.name+' (alternativ)'});
-  return opts.sort((a,b)=>a.price-b.price)[0];
+function add(name,cat,qty=1,manual=false){
+  name=name.trim().replace(/\s+/g," ");
+  if(!name)return;
+  const ex=basket.find(b=>norm(b.name)===norm(name));
+  if(ex)ex.qty+=qty;
+  else basket.push({id:Date.now()+Math.random(),name,cat:cat||"Andet",qty,manual,p:{}});
+  save();renderBasket();
 }
 
-function add(id){cart[id]=(cart[id]||0)+1;saveAndRender()}
-function adjust(id,n){cart[id]=(cart[id]||0)+n;if(cart[id]<=0)delete cart[id];saveAndRender()}
-function saveAndRender(){
-  localStorage.setItem('minkurv-cart',JSON.stringify(cart));
-  localStorage.setItem('minkurv-mode',JSON.stringify(mode));
-  render();
-}
-function setMode(m){mode=m;saveAndRender()}
-
-function normalizeSearch(value) {
-  return value.trim().toLocaleLowerCase('da').replaceAll('æ', 'ae')
-    .replaceAll('ø', 'oe').replaceAll('å', 'aa');
+function renderResults(){
+  const q=norm($("q").value),ul=$("results");
+  if(!q){ul.innerHTML='<li class="empty">Begynd at skrive for at søge i varer.</li>';return}
+  const words=q.split(/\s+/);
+  const hits=ITEMS.filter(i=>{const n=norm(i.name);return words.every(w=>n.includes(w))})
+    .sort((a,b)=>norm(a.name).indexOf(words[0])-norm(b.name).indexOf(words[0])).slice(0,30);
+  let html=hits.map((h,i)=>`<li><span class="n">${esc(h.name)}<br><small>${esc(h.cat)}</small></span><button class="primary" data-i="${i}">Tilføj</button></li>`).join("");
+  html+=`<li><span class="n">${hits.length?"Kan du ikke finde den?":"Ingen varer fundet."} <small>Tilføj “${esc($("q").value.trim())}” som egen vare</small></span><button data-own="1">Tilføj</button></li>`;
+  ul.innerHTML=html;ul._hits=hits;
 }
 
-function findProducts(value) {
-  const query = normalizeSearch(value);
-  return products.filter(product =>
-    [product.name, ...(product.aliases || [])].some(term =>
-      normalizeSearch(term).includes(query)
-    )
-  ).slice(0, 8);
+function renderBasket(){
+  const ul=$("basket");
+  if(!basket.length){ul.innerHTML='<li class="empty">Kurven er tom. Søg efter en vare for at komme i gang.</li>'}
+  else ul.innerHTML=basket.map(b=>`<li data-id="${b.id}"><span class="n"><b>${esc(b.name)}</b>${b.manual?'<span class="tag">egen</span>':""}<br><small class="cat">${esc(b.cat)}</small></span>
+    <span class="qty"><button data-a="dec" aria-label="Færre">−</button><span>${b.qty}</span><button data-a="inc" aria-label="Flere">+</button></span>
+    <button class="del" data-a="del" aria-label="Fjern ${esc(b.name)}">✕</button></li>`).join("");
+  const lines=basket.length,units=basket.reduce((s,b)=>s+b.qty,0);
+  $("count").textContent=lines?`(${lines})`:"";
+  $("sum").textContent=lines?`${lines} ${lines===1?"vare":"varer"} · ${units} i alt`:"";
+  $("clear").hidden=!lines;renderCmp();
 }
 
-function renderSearch() {
-  let matches=findProducts(document.getElementById('search').value);
-  document.getElementById('results').innerHTML=matches.map(p=>
-    `<div class="item"><div><strong>${p.emoji} ${p.name}</strong><div class="small">Eksempelvare</div></div><button class="btn" onclick="add('${p.id}')">+ Tilføj</button></div>`
-  ).join('')||'<p class="muted">Ingen varer fundet i demo-kataloget.</p>';
+const STORES=["Netto","Rema 1000","Føtex","Bilka","Lidl","Aldi","Coop 365","SuperBrugsen"];
+const kr=n=>n.toLocaleString("da-DK",{minimumFractionDigits:2,maximumFractionDigits:2})+" kr.";
+function renderCmp(){
+  const box=$("cmp");
+  if(!basket.length){box.innerHTML='<p class="empty">Tilføj varer til kurven for at sammenligne priser.</p>';$("verdict").textContent="";return}
+  const head='<tr><th>Vare</th><th>Antal</th>'+STORES.map(s=>`<th>${s}</th>`).join("")+'</tr>';
+  const rows=basket.map(b=>`<tr><td>${esc(b.name)}</td><td>${b.qty}</td>`+STORES.map(s=>`<td><input type="number" inputmode="decimal" min="0" step="0.01" placeholder="–" aria-label="${esc(b.name)} i ${s}" data-id="${b.id}" data-s="${s}" value="${b.p&&b.p[s]!=null?b.p[s]:""}"></td>`).join("")+'</tr>').join("");
+  const foot='<tr class="tot"><td colspan="2">Samlet</td>'+STORES.map(s=>`<td data-t="${s}"></td>`).join("")+'</tr>';
+  box.innerHTML=`<table class="cmp"><thead>${head}</thead><tbody>${rows}</tbody><tfoot>${foot}</tfoot></table>`;
+  updateTotals();
 }
-
-function render() {
-  renderSearch();
-  let selected=products.filter(p=>cart[p.id]>0);
-  document.getElementById('count').textContent=`(${selected.reduce((a,p)=>a+cart[p.id],0)} varer)`;
-  document.getElementById('basket').innerHTML=selected.length?selected.map(p=>
-    `<div class="item"><div><strong>${p.emoji} ${p.name}</strong></div><div class="qty"><button onclick="adjust('${p.id}',-1)">−</button>${cart[p.id]}<button onclick="adjust('${p.id}',1)">+</button></div></div>`
-  ).join(''):'<p class="muted">Din kurv er tom. Søg efter en vare ovenfor.</p>';
-
-  for(let m of ['single','multi'])document.getElementById(m).classList.toggle('active',m===mode);
-  const area=document.getElementById('comparison');
-  if(!selected.length){
-    area.innerHTML='<p class="muted">Tilføj varer for at se din pris.</p>';
-    return;
-  }
-
-  let alt=document.getElementById('alternatives').checked;
-  let totals=stores.map(s=>({
-    store:s,
-    total:selected.reduce((a,p)=>a+quote(p,s,alt).price*cart[p.id],0)
-  })).sort((a,b)=>a.total-b.total);
-  let multi=selected.map(p=>{
-    let ranked=stores.map(s=>({store:s,...quote(p,s,alt)})).sort((a,b)=>a.price-b.price);
-    return {...ranked[0],product:p,qty:cart[p.id]};
-  });
-  let multiTotal=multi.reduce((a,r)=>a+r.price*r.qty,0);
-  let top=totals[0].total;
-  let worst=totals[totals.length-1].total;
-
-  if(mode==='single'){
-    area.innerHTML=`<div class="total">${kr(top)}</div><p class="muted">Billigste butik: <b>${totals[0].store}</b> · Forskel til dyreste: ${kr(worst-top)}</p>`+
-      totals.map((x,i)=>`<div class="store ${i===0?'best':''}"><div class="storeline"><b>${i===0?'🏆 ':''}${x.store}</b><b>${kr(x.total)}</b></div></div>`).join('')+
-      '<p class="small">Kun demo-katalogets varer. Alle 10 butikker har eksempelpriser.</p>';
-  }else{
-    let count=new Set(multi.map(x=>x.store)).size;
-    area.innerHTML=`<div class="total">${kr(multiTotal)}</div><p class="muted">Fordelt på ${count} butikker · Spar ${kr(top-multiTotal)} sammenlignet med billigste enkeltbutik</p>`+
-      multi.map(x=>`<div class="store"><div class="storeline"><div><b>${x.product.emoji} ${x.product.name}</b><div class="small">${x.store} · ${x.label} · ${x.qty} stk.</div></div><b>${kr(x.price*x.qty)}</b></div></div>`).join('');
-  }
+function updateTotals(){
+  const res=STORES.map(s=>{let sum=0,miss=0;basket.forEach(b=>{const v=b.p&&b.p[s];if(v>0)sum+=v*b.qty;else miss++});return{s,sum,miss}});
+  const full=res.filter(r=>r.miss===0);
+  const best=full.length?full.reduce((a,b)=>b.sum<a.sum?b:a):null;
+  res.forEach(r=>{const td=document.querySelector(`[data-t="${r.s}"]`);if(!td)return;
+    td.className=best&&r===best?"best":"";
+    td.innerHTML=(r.sum?kr(r.sum):"–")+(r.miss?`<br><small>mangler ${r.miss}</small>`:"")});
+  const v=$("verdict");
+  if(!best)v.textContent="Udfyld priser for alle varer i mindst én butik for at se, hvilken der er billigst.";
+  else{const worst=full.reduce((a,b)=>b.sum>a.sum?b:a);
+    v.innerHTML=`<b>Billigst: ${best.s}</b> – ${kr(best.sum)}`+(full.length>1?` (${kr(worst.sum-best.sum)} billigere end ${worst.s})`:"")}
 }
+$("cmp").addEventListener("input",e=>{
+  const i=e.target;if(!i.dataset||!i.dataset.s)return;
+  const it=basket.find(x=>String(x.id)===i.dataset.id);if(!it)return;
+  it.p=it.p||{};const v=parseFloat(i.value);
+  if(v>=0)it.p[i.dataset.s]=v;else delete it.p[i.dataset.s];
+  save();updateTotals();
+});
+$("q").addEventListener("input",renderResults);
+$("q").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){const h=$("results")._hits;if(h&&h[0])add(h[0].name,h[0].cat);else if($("q").value.trim())add($("q").value,"Andet",1,true);}
+});
+$("results").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.own){add($("q").value,"Andet",1,true)}
+  else{const h=$("results")._hits[+b.dataset.i];add(h.name,h.cat)}
+  b.textContent="✓";setTimeout(()=>b.textContent="Tilføj",700);
+});
+$("basket").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  const li=b.closest("li"),it=basket.find(x=>String(x.id)===li.dataset.id);if(!it)return;
+  if(b.dataset.a==="inc")it.qty++;
+  else if(b.dataset.a==="dec")it.qty=Math.max(1,it.qty-1);
+  else basket=basket.filter(x=>x!==it);
+  save();renderBasket();
+});
+$("clear").addEventListener("click",()=>{if(confirm("Tøm hele kurven?")){basket=[];save();renderBasket()}});
 
-function tab(t) {
-  for(let id of ['home','prices','profile']){
-    document.getElementById(id).classList.toggle('hide',id!==t);
-    document.getElementById('nav'+id).classList.toggle('active',id===t);
-  }
-  if(t==='prices')renderHistory();
-  window.scrollTo(0,0);
+$("mCat").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
+$("mCat").value="Andet";
+function manualAdd(){
+  const n=$("mName").value;if(!n.trim()){$("mName").focus();return}
+  add(n,$("mCat").value,Math.max(1,parseInt($("mQty").value)||1),true);
+  $("mName").value="";$("mQty").value=1;$("mName").focus();
 }
+$("mAdd").addEventListener("click",manualAdd);
+$("mName").addEventListener("keydown",e=>{if(e.key==="Enter")manualAdd()});
 
-function renderHistory() {
-  let p=products.find(x=>x.id===document.getElementById('historySelect').value)||products[0];
-  let data=Array.from({length:8},(_,i)=>Math.round(p.base*(.78+hash(p.id+'week'+i)%45/100)*2)/2);
-  let min=Math.min(...data),max=Math.max(...data);
-  document.getElementById('history').innerHTML=
-    `<p class="muted">Illustrativ prisudvikling over 8 uger. Ikke faktiske historiske priser.</p><div class="chart">${data.map(v=>`<div class="bar" title="${kr(v)}" style="height:${Math.max(12,Math.round(v/max*100))}%"></div>`).join('')}</div><div class="storeline small"><span>8 uger siden</span><span>Nu</span></div><p><b>Laveste demopris:</b> ${kr(min)}<br><b>Højeste demopris:</b> ${kr(max)}</p>`;
-}
-
-document.getElementById('historySelect').innerHTML=products.map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('');
-document.getElementById('search').addEventListener('input',renderSearch);
-render();
-renderHistory();
+renderResults();renderBasket();
 </script>
 </body>
 </html>
